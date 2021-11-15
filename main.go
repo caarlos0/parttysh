@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
@@ -8,7 +9,7 @@ import (
 
 	_ "embed"
 
-	"github.com/caarlos0/env/v6"
+	"github.com/caarlos0/promwish"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -49,40 +50,36 @@ var f8 string
 //go:embed frames/9.txt
 var f9 string
 
-type Config struct {
-	Host string `env:"PARTTYSH_HOST" envDefault:"127.0.0.1"`
-	Port int    `env:"PARTTYSH_PORT" envDefault:"2222"`
-}
+var port = flag.Int("port", 2222, "port to listen on")
+var metricsPort = flag.Int("metrics-port", 9222, "port to listen on")
 
 func main() {
-	var cfg Config
-	if err := env.Parse(&cfg); err != nil {
-		log.Fatalln(err)
-	}
-
+	flag.Parse()
 	// force colors as we might start it from systemd which has no interactive term and no colors
 	lipgloss.SetColorProfile(termenv.ANSI256)
 
 	s, err := wish.NewServer(
-		wish.WithAddress(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)),
+		wish.WithAddress(fmt.Sprintf("0.0.0.0:%d", *port)),
 		wish.WithHostKeyPath(".ssh/parttysh"),
 		wish.WithMiddleware(
-			bm.Middleware(teaHandler(cfg)),
+			bm.Middleware(teaHandler()),
 			lm.Middleware(),
+			promwish.Middleware(fmt.Sprintf("0.0.0.0:%d", *metricsPort)),
 		),
 	)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Printf("Starting SSH server on %s:%d", cfg.Host, cfg.Port)
+	log.Printf("Starting SSH server on 0.0.0.0:%d", *port)
 	err = s.ListenAndServe()
 	if err != nil {
 		log.Fatalln(err)
 	}
 }
 
-func teaHandler(cfg Config) func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
+func teaHandler() func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 	return func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
+		log.Println(s)
 		_, _, active := s.Pty()
 		if !active {
 			fmt.Println("no active terminal, skipping")
