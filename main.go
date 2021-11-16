@@ -14,6 +14,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/wish"
+	"github.com/charmbracelet/wish/accesscontrol"
+	"github.com/charmbracelet/wish/activeterm"
 	bm "github.com/charmbracelet/wish/bubbletea"
 	lm "github.com/charmbracelet/wish/logging"
 	"github.com/gliderlabs/ssh"
@@ -65,6 +67,8 @@ func main() {
 			bm.Middleware(teaHandler()),
 			lm.Middleware(),
 			promwish.Middleware(fmt.Sprintf("0.0.0.0:%d", *metricsPort)),
+			accesscontrol.Middleware(),
+			activeterm.Middleware(),
 		),
 	)
 	if err != nil {
@@ -79,17 +83,6 @@ func main() {
 
 func teaHandler() func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 	return func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
-		if s.RawCommand() != "" {
-			fmt.Println("trying to execute commands, skipping")
-			s.Exit(1)
-			return nil, nil
-		}
-		_, _, active := s.Pty()
-		if !active {
-			fmt.Println("no active terminal, skipping")
-			s.Exit(1)
-			return nil, nil
-		}
 		return newModel(), []tea.ProgramOption{tea.WithAltScreen()}
 	}
 }
