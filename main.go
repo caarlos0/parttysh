@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	_ "embed"
@@ -12,6 +15,7 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
 	"github.com/charmbracelet/promwish"
 	"github.com/charmbracelet/wish"
 	"github.com/charmbracelet/wish/accesscontrol"
@@ -19,7 +23,6 @@ import (
 	bm "github.com/charmbracelet/wish/bubbletea"
 	lm "github.com/charmbracelet/wish/logging"
 	"github.com/gliderlabs/ssh"
-	"github.com/muesli/termenv"
 )
 
 //go:embed frames/0.txt
@@ -57,16 +60,13 @@ var metricsPort = flag.Int("metrics-port", 9222, "port to listen on")
 
 func main() {
 	flag.Parse()
-	// force colors as we might start it from systemd which has no interactive term and no colors
-	lipgloss.SetColorProfile(termenv.ANSI256)
-
 	s, err := wish.NewServer(
 		wish.WithAddress(fmt.Sprintf("0.0.0.0:%d", *port)),
 		wish.WithHostKeyPath(".ssh/parttysh"),
 		wish.WithMiddleware(
 			bm.Middleware(teaHandler()),
 			lm.Middleware(),
-			promwish.Middleware(fmt.Sprintf("0.0.0.0:%d", *metricsPort)),
+			promwish.Middleware(fmt.Sprintf("0.0.0.0:%d", *metricsPort), "parttysh"),
 			accesscontrol.Middleware(),
 			activeterm.Middleware(),
 		),
@@ -75,8 +75,16 @@ func main() {
 		log.Fatalln(err)
 	}
 	log.Printf("Starting SSH server on 0.0.0.0:%d", *port)
-	err = s.ListenAndServe()
-	if err != nil {
+
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		if err = s.ListenAndServe(); err != nil {
+			log.Fatalln(err)
+		}
+	}()
+	<-done
+	if err := s.Close(); err != nil {
 		log.Fatalln(err)
 	}
 }
