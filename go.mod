@@ -11,7 +11,6 @@ require (
 	github.com/charmbracelet/promwish v0.0.0-00010101000000-000000000000
 	github.com/charmbracelet/wish v0.1.0
 	github.com/gliderlabs/ssh v0.3.3
-	github.com/muesli/termenv v0.9.0
 )
 
 require (
@@ -29,6 +28,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/muesli/ansi v0.0.0-20211018074035-2e021307bc4b // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
+	github.com/muesli/termenv v0.9.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.11.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
