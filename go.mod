@@ -2,14 +2,12 @@ module github.com/caarlos0/parttysh
 
 go 1.17
 
-replace github.com/charmbracelet/promwish => ../../charmbracelet/promwish/
-
 require (
 	github.com/charmbracelet/bubbles v0.9.0
 	github.com/charmbracelet/bubbletea v0.19.1
 	github.com/charmbracelet/lipgloss v0.4.0
-	github.com/charmbracelet/promwish v0.0.0-00010101000000-000000000000
-	github.com/charmbracelet/wish v0.1.0
+	github.com/charmbracelet/promwish v0.1.0
+	github.com/charmbracelet/wish v0.1.1
 	github.com/gliderlabs/ssh v0.3.3
 )
 

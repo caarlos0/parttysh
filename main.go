@@ -15,7 +15,6 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-
 	"github.com/charmbracelet/promwish"
 	"github.com/charmbracelet/wish"
 	"github.com/charmbracelet/wish/accesscontrol"
