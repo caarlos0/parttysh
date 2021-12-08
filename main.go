@@ -64,13 +64,6 @@ func main() {
 }
 
 func teaHandler() func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
-	return func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
-		return newModel(), []tea.ProgramOption{tea.WithAltScreen()}
-	}
-}
-
-func newModel() model {
-	spin := spinner.NewModel()
 	var frames []string
 	if err := fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -85,6 +78,13 @@ func newModel() model {
 	}); err != nil {
 		log.Fatalln(err)
 	}
+	return func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
+		return newModel(frames), []tea.ProgramOption{tea.WithAltScreen()}
+	}
+}
+
+func newModel(frames []string) model {
+	spin := spinner.NewModel()
 	spin.Spinner = spinner.Spinner{
 		Frames: frames,
 		FPS:    time.Second / 15,
