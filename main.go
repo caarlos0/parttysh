@@ -1,8 +1,10 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"fmt"
+	"io/fs"
 	"log"
 	"math/rand"
 	"os"
@@ -24,35 +26,8 @@ import (
 	"github.com/gliderlabs/ssh"
 )
 
-//go:embed frames/0.txt
-var f0 string
-
-//go:embed frames/1.txt
-var f1 string
-
-//go:embed frames/2.txt
-var f2 string
-
-//go:embed frames/3.txt
-var f3 string
-
-//go:embed frames/4.txt
-var f4 string
-
-//go:embed frames/5.txt
-var f5 string
-
-//go:embed frames/6.txt
-var f6 string
-
-//go:embed frames/7.txt
-var f7 string
-
-//go:embed frames/8.txt
-var f8 string
-
-//go:embed frames/9.txt
-var f9 string
+//go:embed frames/*.txt
+var fsys embed.FS
 
 var port = flag.Int("port", 2222, "port to listen on")
 var metricsPort = flag.Int("metrics-port", 9222, "port to listen on")
@@ -96,8 +71,22 @@ func teaHandler() func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 
 func newModel() model {
 	spin := spinner.NewModel()
+	var frames []string
+	if err := fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		bts, err := fsys.ReadFile(path)
+		frames = append(frames, string(bts))
+		return err
+	}); err != nil {
+		log.Fatalln(err)
+	}
 	spin.Spinner = spinner.Spinner{
-		Frames: []string{f0, f1, f2, f3, f4, f5, f6, f7, f8, f9},
+		Frames: frames,
 		FPS:    time.Second / 15,
 	}
 	var colors []lipgloss.Style
