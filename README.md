@@ -16,7 +16,7 @@ ssh -p 2225 ssh.caarlos0.dev
 
 ## How?
 
-It uses a couple of Charm's packages:
+It uses a couple of [Charm](https://github.com/charmbracelet)'s packages:
 
 - [bubbletea](https://github.com/charmbracelet/bubbletea): TUI framework
 - [bubbles](https://github.com/charmbracelet/bubbles): TUI components
