@@ -1,0 +1,10 @@
+project_name: parttysh
+variables:
+  homepage: https://github.com/caarlos0/parttysh
+  repository: https://github.com/caarlos0/parttysh
+  description: A party parrot over SSH
+includes:
+  - from_url:
+      url: https://raw.githubusercontent.com/caarlos0/.goreleaserfiles/main/build.yml
+  - from_url:
+      url: https://raw.githubusercontent.com/caarlos0/.goreleaserfiles/main/release.yml
