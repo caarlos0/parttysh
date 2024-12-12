@@ -1,3 +1,4 @@
+version: 2
 project_name: parttysh
 variables:
   homepage: https://github.com/caarlos0/parttysh
