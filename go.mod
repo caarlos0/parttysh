@@ -8,7 +8,7 @@ require (
 	github.com/charmbracelet/lipgloss v0.13.0
 	github.com/charmbracelet/promwish v0.1.0
 	github.com/charmbracelet/wish v0.1.1
-	github.com/gliderlabs/ssh v0.3.3
+	github.com/gliderlabs/ssh v0.3.7
 )
 
 require (
