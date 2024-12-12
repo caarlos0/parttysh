@@ -18,19 +18,21 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/promwish"
+	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
 	"github.com/charmbracelet/wish/accesscontrol"
 	"github.com/charmbracelet/wish/activeterm"
 	bm "github.com/charmbracelet/wish/bubbletea"
 	lm "github.com/charmbracelet/wish/logging"
-	"github.com/gliderlabs/ssh"
 )
 
 //go:embed frames/*.txt
 var fsys embed.FS
 
-var port = flag.Int("port", 2222, "port to listen on")
-var metricsPort = flag.Int("metrics-port", 9222, "port to listen on")
+var (
+	port        = flag.Int("port", 2222, "port to listen on")
+	metricsPort = flag.Int("metrics-port", 9222, "port to listen on")
+)
 
 func main() {
 	flag.Parse()
@@ -84,7 +86,7 @@ func teaHandler() func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 }
 
 func newModel(frames []string) model {
-	spin := spinner.NewModel()
+	spin := spinner.New()
 	spin.Spinner = spinner.Spinner{
 		Frames: frames,
 		FPS:    time.Second / 15,
@@ -114,7 +116,7 @@ type model struct {
 
 // Init initializes the confetti after a small delay
 func (m model) Init() tea.Cmd {
-	return spinner.Tick
+	return m.spin.Tick
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
